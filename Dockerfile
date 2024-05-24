@@ -52,14 +52,14 @@ RUN adduser --uid 10001 --disabled-password --gecos '' appuser \
 COPY --from=builder /dependencies /usr/local
 ENV PYTHONPATH=/usr/local
 
+# Copy the application code as the root user first
+COPY changedetectionio /app/changedetectionio
+COPY changedetection.py /app/changedetection.py
+
+# Ensure all files in /app are owned by the non-root user
+RUN chown -R appuser:appuser /app /datastore
+
 # Switch to non-root user
-USER appuser
-
-# Copy the application code as the non-root user
-COPY --chown=appuser:appuser changedetectionio /app/changedetectionio
-COPY --chown=appuser:appuser changedetection.py /app/changedetection.py
-
-# Explicitly set USER directive to ensure compliance with CKV_CHOREO_1
 USER 10001
 
 EXPOSE 8080
