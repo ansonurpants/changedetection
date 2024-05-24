@@ -71,3 +71,6 @@ ENV LOGGER_LEVEL "$LOGGER_LEVEL"
 
 WORKDIR /app
 CMD ["python", "./changedetection.py", "-d", "/datastore"]
+
+# Explicitly set USER at the end to ensure Checkov detects it
+USER 10001
