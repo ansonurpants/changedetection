@@ -59,6 +59,9 @@ USER appuser
 COPY --chown=appuser:appuser changedetectionio /app/changedetectionio
 COPY --chown=appuser:appuser changedetection.py /app/changedetection.py
 
+# Explicitly set USER directive to ensure compliance with CKV_CHOREO_1
+USER 10001
+
 EXPOSE 8080
 
 # Github Action test purpose(test-only.yml).
