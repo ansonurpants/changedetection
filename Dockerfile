@@ -44,8 +44,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # https://stackoverflow.com/questions/58701233/docker-logs-erroneously-appears-empty-until-container-stops
 ENV PYTHONUNBUFFERED=1
 
-RUN [ ! -d "/datastore" ] && mkdir /datastore
-
 # Re #80, sets SECLEVEL=1 in openssl.conf to allow monitoring sites with weak/old cipher suites
 RUN sed -i 's/^CipherString = .*/CipherString = DEFAULT@SECLEVEL=1/' /etc/ssl/openssl.cnf
 
@@ -53,17 +51,19 @@ RUN sed -i 's/^CipherString = .*/CipherString = DEFAULT@SECLEVEL=1/' /etc/ssl/op
 COPY --from=builder /dependencies /usr/local
 ENV PYTHONPATH=/usr/local
 
-# Create a non-root user with a specific UID and set the appropriate permissions
+# Create a non-root user with a specific UID
 RUN adduser --uid 10001 --disabled-password --gecos '' appuser \
-    && mkdir -p /app /datastore \
-    && chown -R appuser:appuser /app /datastore
+    && mkdir -p /app /datastore
 
-# Switch to non-root user before copying files
+# Switch to non-root user
 USER appuser
 
 # Copy the application code as the non-root user
 COPY --chown=appuser:appuser changedetectionio /app/changedetectionio
 COPY --chown=appuser:appuser changedetection.py /app/changedetection.py
+
+# Ensure /datastore is owned by the non-root user
+RUN mkdir -p /datastore && chown -R appuser:appuser /datastore
 
 EXPOSE 8080
 
