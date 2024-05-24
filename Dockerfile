@@ -55,9 +55,10 @@ ENV PYTHONPATH=/usr/local
 
 # Create a non-root user with a specific UID and set the appropriate permissions
 RUN adduser --uid 10001 --disabled-password --gecos '' appuser \
-    && mkdir -p /app /datastore
+    && mkdir -p /app /datastore \
+    && chown -R appuser:appuser /app /datastore
 
-# Switch to non-root user
+# Switch to non-root user before copying files
 USER appuser
 
 # Copy the application code as the non-root user
