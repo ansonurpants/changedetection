@@ -57,9 +57,10 @@ ENV PYTHONPATH=/usr/local
 RUN adduser --uid 10001 --disabled-password --gecos '' appuser \
     && mkdir -p /app /datastore
 
-# Copy the application code as the non-root user
+# Switch to non-root user
 USER appuser
 
+# Copy the application code as the non-root user
 COPY --chown=appuser:appuser changedetectionio /app/changedetectionio
 COPY --chown=appuser:appuser changedetection.py /app/changedetection.py
 
