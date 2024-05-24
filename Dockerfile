@@ -59,9 +59,6 @@ USER appuser
 COPY --chown=appuser:appuser changedetectionio /app/changedetectionio
 COPY --chown=appuser:appuser changedetection.py /app/changedetection.py
 
-# Ensure /datastore is owned by the non-root user
-RUN mkdir -p /datastore
-
 EXPOSE 8080
 
 # Github Action test purpose(test-only.yml).
