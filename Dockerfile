@@ -53,8 +53,10 @@ RUN sed -i 's/^CipherString = .*/CipherString = DEFAULT@SECLEVEL=1/' /etc/ssl/op
 COPY --from=builder /dependencies /usr/local
 ENV PYTHONPATH=/usr/local
 
-# Create a non-root user with a UID in the range 10000-20000 and set the appropriate permissions
-RUN adduser --uid 10001 --disabled-password --gecos '' appuser && chown -R appuser /app
+# Create a non-root user with a specific UID and set the appropriate permissions
+RUN adduser --uid 10001 --disabled-password --gecos '' appuser \
+    && mkdir -p /app /datastore \
+    && chown -R appuser:appuser /app /datastore
 
 # Switch to the non-root user
 USER 10001
@@ -66,10 +68,13 @@ COPY changedetectionio /app/changedetectionio
 # Starting wrapper
 COPY changedetection.py /app/changedetection.py
 
+# Ensure all files in /app are owned by the non-root user
+RUN chown -R appuser:appuser /app
+
 # Github Action test purpose(test-only.yml).
 # On production, it is effectively LOGGER_LEVEL=''.
 ARG LOGGER_LEVEL=''
 ENV LOGGER_LEVEL "$LOGGER_LEVEL"
 
 WORKDIR /app
-CMD ["python", "./changedetection.py", "-d", "/datastore"]
+CMD ["py
