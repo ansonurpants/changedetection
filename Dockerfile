@@ -41,7 +41,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     zlib1g \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-
 # https://stackoverflow.com/questions/58701233/docker-logs-erroneously-appears-empty-until-container-stops
 ENV PYTHONUNBUFFERED=1
 
@@ -54,11 +53,11 @@ RUN sed -i 's/^CipherString = .*/CipherString = DEFAULT@SECLEVEL=1/' /etc/ssl/op
 COPY --from=builder /dependencies /usr/local
 ENV PYTHONPATH=/usr/local
 
-# Create a non-root user and set the appropriate permissions
-RUN adduser --disabled-password --gecos '' appuser && chown -R appuser /app
+# Create a non-root user with a UID in the range 10000-20000 and set the appropriate permissions
+RUN adduser --uid 10001 --disabled-password --gecos '' appuser && chown -R appuser /app
 
 # Switch to the non-root user
-USER appuser
+USER 10001
 
 EXPOSE 8080
 
@@ -74,5 +73,3 @@ ENV LOGGER_LEVEL "$LOGGER_LEVEL"
 
 WORKDIR /app
 CMD ["python", "./changedetection.py", "-d", "/datastore"]
-
-
