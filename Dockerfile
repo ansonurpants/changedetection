@@ -1,7 +1,4 @@
 # pip dependencies install stage
-
-# @NOTE! I would love to move to 3.11 but it breaks the async handler in changedetectionio/content_fetchers/puppeteer.py
-#        If you know how to fix it, please do! and test it for both 3.10 and 3.11
 FROM python:3.10-slim-bookworm as builder
 
 # See `cryptography` pin comment in requirements.txt
@@ -47,13 +44,13 @@ ENV PYTHONUNBUFFERED=1
 # Re #80, sets SECLEVEL=1 in openssl.conf to allow monitoring sites with weak/old cipher suites
 RUN sed -i 's/^CipherString = .*/CipherString = DEFAULT@SECLEVEL=1/' /etc/ssl/openssl.cnf
 
-# Copy modules over to the final image and add their dir to PYTHONPATH
-COPY --from=builder /dependencies /usr/local
-ENV PYTHONPATH=/usr/local
-
 # Create a non-root user with a specific UID
 RUN adduser --uid 10001 --disabled-password --gecos '' appuser \
     && mkdir -p /app /datastore
+
+# Copy modules over to the final image and add their dir to PYTHONPATH
+COPY --from=builder /dependencies /usr/local
+ENV PYTHONPATH=/usr/local
 
 # Switch to non-root user
 USER appuser
@@ -63,7 +60,7 @@ COPY --chown=appuser:appuser changedetectionio /app/changedetectionio
 COPY --chown=appuser:appuser changedetection.py /app/changedetection.py
 
 # Ensure /datastore is owned by the non-root user
-RUN mkdir -p /datastore && chown -R appuser:appuser /datastore
+RUN mkdir -p /datastore
 
 EXPOSE 8080
 
