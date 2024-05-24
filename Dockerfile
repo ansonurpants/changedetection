@@ -54,7 +54,13 @@ RUN sed -i 's/^CipherString = .*/CipherString = DEFAULT@SECLEVEL=1/' /etc/ssl/op
 COPY --from=builder /dependencies /usr/local
 ENV PYTHONPATH=/usr/local
 
-EXPOSE 5000
+# Create a non-root user and set the appropriate permissions
+RUN adduser --disabled-password --gecos '' appuser && chown -R appuser /app
+
+# Switch to the non-root user
+USER appuser
+
+EXPOSE 8080
 
 # The actual flask app module
 COPY changedetectionio /app/changedetectionio
