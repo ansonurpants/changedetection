@@ -7,34 +7,9 @@ services:
     volumes:
       - changedetection-data:/datastore
     environment:
-      # Default listening port, can also be changed with the -p option
       - PORT=5000
-      # Uncomment and configure these variables as needed
-      # - PUID=1000
-      # - PGID=1000
-      # Log levels are in descending order. (TRACE is the most detailed one)
-      # Log output levels: TRACE, DEBUG(default), INFO, SUCCESS, WARNING, ERROR, CRITICAL
       - LOGGER_LEVEL=DEBUG
-      # Alternative WebDriver/selenium URL, do not use "'s or 's!
       - WEBDRIVER_URL=http://browser-chrome:4444/wd/hub
-      # Alternative Playwright URL, do not use "'s or 's!
-      # - PLAYWRIGHT_DRIVER_URL=ws://playwright-chrome:3000
-      # Plain requests - proxy support example.
-      # - HTTP_PROXY=socks5h://10.10.1.10:1080
-      # - HTTPS_PROXY=socks5h://10.10.1.10:1080
-      # An exclude list (useful for notification URLs above) can be specified by with
-      # - NO_PROXY="localhost,192.168.0.0/24"
-      # Base URL of your changedetection.io install (Added to the notification alert)
-      # - BASE_URL=https://mysite.com
-      # Respect proxy_pass type settings, `proxy_set_header Host "localhost";` and `proxy_set_header X-Forwarded-Prefix /app;`
-      # More here https://github.com/dgtlmoon/changedetection.io/wiki/Running-changedetection.io-behind-a-reverse-proxy-sub-directory
-      # - USE_X_SETTINGS=1
-      # Hides the `Referer` header so that monitored websites can't see the changedetection.io hostname.
-      # - HIDE_REFERER=true
-      # Default number of parallel/concurrent fetchers
-      # - FETCH_WORKERS=10
-      # Absolute minimum seconds to recheck, overrides any watch minimum, change to 0 to disable
-      # - MINIMUM_SECONDS_RECHECK_TIME=3
     ports:
       - 5000:5000
     restart: unless-stopped
@@ -43,15 +18,15 @@ services:
 
   browser-chrome:
     hostname: browser-chrome
-    image: selenium/standalone-chrome:4
+    image: selenium/standalone-chrome:4.0.0-20211213
+    shm_size: '2gb'
     environment:
       - VNC_NO_PASSWORD=1
       - SCREEN_WIDTH=1920
       - SCREEN_HEIGHT=1080
       - SCREEN_DEPTH=24
+      - SE_OPTS="--no-sandbox --disable-dev-shm-usage"
     volumes:
-      # Workaround to avoid the browser crashing inside a docker container
-      # See https://github.com/SeleniumHQ/docker-selenium#quick-start
       - /dev/shm:/dev/shm
     restart: unless-stopped
 
